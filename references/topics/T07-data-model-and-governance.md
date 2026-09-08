@@ -15,6 +15,8 @@ Primary/foreign keys, unique and check constraints, NOT NULL discipline, enums v
 ### C. Migration hygiene
 Reversible migrations; ordering and numbering; schema vs data migrations separated; migrations tested in CI; zero-downtime patterns (expand/contract, backfills in batches); drift between migrations and the live schema; migration count and dates as a product-evolution timeline (→T11).
 
+**When migrations run at process start rather than as a deploy step, price that.** Establish what executes *unconditionally* on every boot (a statement guarded by `IF NOT EXISTS` is cheap; an unconditional `ALTER`, `GRANT`, `CREATE OR REPLACE` or schema-reload notification is not), what it triggers downstream (event triggers, API schema-cache rebuilds, replication churn), and whether a ledger lets an already-applied set be skipped. A self-healing statement array is a real correctness property *and* a recurring metered cost at the same time, and the two are usually audited by different people and joined by nobody (→T05 §C/§D, →T13 §B). Also check the concurrency case — a zero-downtime rollover runs two instances through the same migration path at once — and whether failures are swallowed rather than surfaced.
+
 ### D. Personal and sensitive data inventory
 Classify every field/store: identifiers · contact · financial/payment · health · location · biometrics · children's data · credentials/secrets · behavioral/analytics · content authored by users. Note where each appears beyond the primary DB: logs, caches, search indexes, analytics, exports, backups, third parties, LLM prompts (→T16).
 
