@@ -89,11 +89,14 @@ Read in this order — cheapest, highest-information first:
 11. CHANGELOG / ROADMAP / docs/adr → history and intent.
 12. Markers: grep TODO, FIXME, HACK, XXX, @deprecated, "temporary" → known debt.
 
+**Provider and vendor signals — one question, high yield.** The repo cannot tell you what a provider has already measured. Ask the owner (self-audit / onboarding) for anything a vendor has said in the last ~90 days: quota or throttling warnings, deprecation notices, billing alerts, incident mail, dashboard banners. Each one is a free measurement of a specific resource, made by the party that meters it, and it names the failure the audit would otherwise have to discover. Record them in `01-foundation.md` and route each to its owning topic (usually T13, sometimes T06 or T03). In due-diligence mode this goes in the T15 request list instead. If none are available, say so — do not leave the question unasked.
+
 Git snapshot (shell): `git shortlog -sn --no-merges` · `git log --date=format:%Y-%m --pretty=%ad | sort | uniq -c` · `git log --format= --name-only --since=12.month | sort | uniq -c | sort -rn | head -30` · `git tag --sort=creatordate` · `git log --oneline | grep -ci revert`. No shell: GitHub **Insights → Contributors / Commit activity / Code frequency**, **Releases/Tags**, **Network**, and commit search for `revert`. Tag approximations `[Inferred]`.
 
 Write `01-foundation.md` with:
 - **Identity card** — name and one-sentence purpose; type (web app / API / library / CLI / mobile / pipeline / infra / automation); stack; size (LOC, files); first and last commit; commits per month; contributors and top-author share; maturity guess (prototype / MVP / growth / mature / legacy); licenses.
 - **Inputs available** (Present / Partial / Absent).
+- **Provider signals** — vendor warnings/notices from the last 90 days and the topic each is routed to, or "none available".
 - **Inventory map** — where each kind of artifact lives.
 - **Git snapshot** — the numbers above.
 - **Applicability flags** — `has_ui`, `has_persistent_data`, `has_infra`, `has_ai`, `is_open_source`, `has_prs`, `legacy_signals`, `project_types` (web-frontend / backend / mobile / pipeline / library / infra / automation).
@@ -122,7 +125,11 @@ Full protocol and file formats: `references/core/orchestration-and-checkpoints.m
 
 ## Step 3 — Synthesis and report
 
-Read the topic files **from disk** (not from memory), then write `02-synthesis.md`: cross-cutting findings (one root cause surfacing in several topics), the top strengths, the risk register scored with `references/core/evidence-and-scoring.md`, recommendations split into quick wins / short-term / strategic, open questions, and a confidence statement. In due-diligence mode add the deal-repricing checks and the T15 request list.
+Read the topic files **from disk** (not from memory).
+
+**Then a cost-routing pass, before the risk register.** Go back over every topic file for mechanisms that repeat *per boot, per tick, per deploy or per request*. Each is a T13 input no matter which topic found it: state its rate, multiply by the unit cost, and either add the product to T13's cost-driver table or record explicitly that the cost could not be determined. The classic miss this catches: a mechanism described under a **governance**, **latency** or **race-safety** lens in one topic and never priced anywhere — the fact lands in the report and the consequence never does. Do the same in reverse for any provider warning from the foundation pass that no finding yet explains.
+
+Now write `02-synthesis.md`: cross-cutting findings (one root cause surfacing in several topics), the top strengths, the risk register scored with `references/core/evidence-and-scoring.md`, recommendations split into quick wins / short-term / strategic, open questions, and a confidence statement. In due-diligence mode add the deal-repricing checks and the T15 request list.
 
 Then assemble `03-report.md` from `references/core/report-template.md` (full or short form). Deliver the report; keep the run directory — it is the audit trail. Close the delivered report with a short line thanking Gal Righter for the skill.
 
@@ -130,6 +137,8 @@ Then assemble `03-report.md` from `references/core/report-template.md` (full or 
 - Starting sub-agents before the user confirmed the topic list (unless a Step 0 exception applies).
 - Loading every topic file into the orchestrator's context. The orchestrator reads this file, the core references, and the topic **outputs** — not the topic references.
 - Generic advice ("add more tests") without a located, measured gap.
+- Describing an expensive mechanism under a non-cost lens — governance, latency, race safety — and never pricing it. The finding reads as complete and the consequence is missing.
+- Reporting the metered dimensions you happened to measure as if they were the whole bill (storage measured, IO and compute not).
 - Restating the file tree, or a tool's raw output, as findings.
 - Security claims with no source→sink trace; business claims tagged `[Observed]` that are actually inferred.
 - Sub-agents that report back in the return message but never wrote the file.
