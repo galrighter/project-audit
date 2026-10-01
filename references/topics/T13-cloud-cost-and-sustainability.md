@@ -22,7 +22,8 @@ A cost driver is a *service*. A **metered dimension** is what the provider actua
 
 Three rules:
 - **A dimension the provider's dashboard names and the audit did not measure is itself a finding.** Put it in the "could not determine" list; never let the dimensions you did measure imply the set was complete.
-- **Measure consumption against the quota, not in absolute units.** "271 GB written" says nothing on its own; "271 GB against a burst budget that refills at X/hour" is the finding.
+- **Measure consumption against the quota, not in absolute units.** A raw byte or call total says nothing on its own; the same number set against the budget it draws down — a burst balance that refills at a known rate, a monthly GB-hour average, a request ceiling — is the finding. Check which *shape* the provider enforces, too: a quota that is an average over the billing cycle is not answered by a snapshot measurement, however precise.
+- **Attribute consumption to a source before costing it, and separate what the owner cannot control.** A metered figure is not automatically the application's: a managed platform's own monitoring, WAL archiving on a timer, and backup jobs all land on the owner's bill while being invisible in the usual attribution views and not theirs to change (→T05 Commands for the reconciliation step). An optimization list aimed at consumption the owner cannot influence is worse than no list — it spends their credibility and changes nothing.
 - **Read consumption from the system where it exposes it** — database statistics views (→T05 commands), usage/billing APIs, quota endpoints — rather than pricing it from IaC. IaC gives the bill you *should* get; the usage views give the one you *will*.
 
 ### C. Provider warnings already received
